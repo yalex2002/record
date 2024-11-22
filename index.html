@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shcces中小學班級簽到系統</title>
+ 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .headtable{
+		padding:20px;
+		font-size: 20px;
+		font-weight: bold;
+		}
+        @keyframes fadeInAnimation { 
+            0% { 
+                opacity: 0; 
+            } 
+            100% { 
+                opacity: 1; 
+            } 
+        } 
+        a{
+		text-decoration: none;
+		color:black;
+        }
+
+        a:hover{
+            color:slategrey;
+        }
+
+        .screen {
+            width: 300px;
+            height: 50px;
+            background-color: #ccc;
+            margin: 20px;
+            text-align: center;
+            line-height: 50px;
+        }
+        .sec_classs {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            
+            gap: 10px;
+            padding: 20px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .sec_class {
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            border: 2px solid #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .occupied {
+            background-color: #ff0000;
+            color: white;
+            cursor: not-allowed;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #333;
+        }
+        #clearDataButton {
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #clearDataButton:hover {
+            background-color: #d32f2f;
+        }
+        .buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px;
+        }
+        
+        #adminModeButton {
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        #adminModeButton.active {
+            background-color: #1976D2;
+        }
+        
+        #adminModeButton:hover {
+            background-color: #1976D2;
+        }
+           /* 添加新的按钮样式 */
+           .main-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .main-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            transition: opacity 0.3s;
+        }
+
+        .main-button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-white {
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #333;
+            font-weight: bold;
+        }
+
+        .btn-pink {
+            background-color: #f6e7f3;
+            color: #333;
+            border: 2px solid #333;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+		<!--班級簽到-->
+		<!--<p class="ht">1231546</p> -->
+        <div>
+            <center>
+                <table>
+                    <tr>
+                        <td class="headtable"><a href="index.html">簽到主頁</a></td>
+                        <td class="headtable"><a href="pri_class.html">小學班級簽到</a></td>
+                        <td class="headtable"><a href="sec_class.html">中學班級簽到</a></td>
+
+                        <!--
+                        <td class="headtable"><a href="sec_teachers.html">中學教師簽到</a></td>
+                        <td class="headtable"><a href="pri_teachers.html">小學教師簽到</a></td>
+                        -->
+                        
+                    </tr>
+            </table>
+            </center>
+        </div>
+
+	</header>
+	
+	
+	<section>
+		
+	<aside><p></p></aside>
+    <div class="main-buttons">
+        <button class="main-button btn-pink"><a href="pri_class.html">小學班級簽到</a></button>
+        <button class="main-button btn-white"><a href="sec_class.html"> 中學班級簽到</a></button>
+
+    </div>
+    <aside>
+        <p>
+            <br>
+            <br>
+            <br>
+            <br>
+        </p>
+    </aside>
+    
+
+    </section>
+   
+</body>
+<footer> 
+    <center>
+    <table>
+        <tr>
+            <td><a id="secretTrigger">| Created by Shcces ICT Team |</a></td>
+        </tr>
+    </table>
+    </center>
+    
+</footer>
+</html>

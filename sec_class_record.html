@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中學班級記錄</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .headtable {
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        a {
+            text-decoration: none;
+            color: black;
+        }
+        a:hover {
+            color: slategrey;
+        }
+        .record-container {
+            margin-top: 20px;
+            width: 95%;
+            max-width: 1200px;
+            display: flex;
+            gap: 10px;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+        .class-record {
+            background-color: white;
+            padding: 8px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-size: 1.2em;
+            word-break: break-word;
+        }
+        .class-record:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .absent-record {
+            color: #ff0000;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        .timestamp:contains('尚未簽到') {
+            color: #999;
+            font-style: italic;
+        }
+        .present-record {
+            color: #0066cc;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .record-container {
+                gap: 5px;
+            }
+            .class-record {
+                padding: 6px;
+                font-size: 0.85em;
+            }
+            .timestamp {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <center>
+                <table>
+                    <tr>
+                        <td class="headtable"><a href="index_record.html">記錄主頁</a></td>
+                        <td class="headtable"><a href="pri_class_record.html">小學簽到記錄</a></td>
+                        <td class="headtable"><a href="sec_class_record.html">中學簽到記錄</a></td>
+                        
+                    </tr>
+                </table>
+            </center>
+        </div>   
+    </header>
+
+    <h2>中學班級記錄</h2>
+    <div class="record-container" id="recordContainer">
+        <!-- 記錄將通過 JavaScript 動態添加到這裡 -->
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVU34KJndIpkUL1hOTrEa7vbgIz4HDdjU",
+            authDomain: "test1115-8166a.firebaseapp.com",
+            databaseURL: "https://test1115-8166a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "test1115-8166a",
+            storageBucket: "test1115-8166a.firebasestorage.app",
+            messagingSenderId: "398187044310",
+            appId: "1:398187044310:web:30a2af444171587b091877",
+            measurementId: "G-XLE0NHYY5S"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const recordContainer = document.getElementById('recordContainer');
+
+        // 修改檢查缺席學生的函數
+        function hasAbsentStudent(absentText) {
+            if (!absentText) return false;
+            const text = absentText.toLowerCase().trim();
+            return text !== 'yes' && text !== 'no' && text !== '到齊';
+        }
+
+        // 修改定義所有班級的方式
+        function generateClassList() {
+            const firstColumn = [];  // F1-F3
+            const secondColumn = []; // F4-F6
+            
+            for (let grade = 1; grade <= 6; grade++) {
+                for (let section of ['A', 'B', 'C', 'D']) {
+                    const className = `F${grade}${section}`;
+                    if (grade <= 3) {
+                        firstColumn.push(className);
+                    } else {
+                        secondColumn.push(className);
+                    }
+                }
+            }
+            
+            return { firstColumn, secondColumn };
+        }
+
+        // 修改初始化顯示函數
+        function initializeClassRecords() {
+            const { firstColumn, secondColumn } = generateClassList();
+            recordContainer.innerHTML = `
+                <div class="column">
+                    ${firstColumn.map(className => `
+                        <div class="class-record" id="record-${className}">
+                            <div>${className}: </div>
+                            <div class="timestamp">尚未簽到</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="column">
+                    ${secondColumn.map(className => `
+                        <div class="class-record" id="record-${className}">
+                            <div>${className}: </div>
+                            <div class="timestamp">尚未簽到</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 首次執行初始化
+        initializeClassRecords();
+
+        // 修改數據監聽函數
+        onValue(ref(database, 'classes'), (snapshot) => {
+            // 首先重新初始化所有班級
+            initializeClassRecords();
+            
+            const data = snapshot.val();
+            if (data) {
+                Object.entries(data).forEach(([classId, classData]) => {
+                    const recordDiv = document.getElementById(`record-${classId}`);
+                    if (recordDiv) {
+                        // 格式化時間
+                        const timestamp = new Date(classData.timestamp);
+                        const formattedTime = timestamp.toLocaleString('zh-TW', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit', hour12: false,
+                            minute: '2-digit'
+                        });
+
+                        // 檢查是否有缺席學生
+                        const isAbsent = hasAbsentStudent(classData.absentStudents);
+                        const absentText = classData.absentStudents || '到齊';
+                        const isPresent = absentText === '到齊';
+
+                        // 更新記錄內容
+                        recordDiv.innerHTML = `
+                            <div class="${isAbsent ? 'absent-record' : ''} ${isPresent ? 'present-record' : ''}">${classId}: ${absentText}</div>
+                            <div class="timestamp">更新: ${formattedTime}</div>
+                        `;
+                    }
+                });
+            }
+        }, {
+            // 添加錯誤處理
+            onlyOnce: false,
+            error: (error) => {
+                console.error('數據監聽錯誤:', error);
+                alert('數據更新失敗，請重新整理頁面');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小學班級簽到</title>
+ 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+        }
+        .headtable{
+		padding:20px;
+		font-size: 1.1em;
+		font-weight: bold;
+		}
+        @keyframes fadeInAnimation { 
+            0% { 
+                opacity: 0; 
+            } 
+            100% { 
+                opacity: 1; 
+            } 
+        } 
+        a{
+		text-decoration: none;
+		color:black;
+        }
+
+        a:hover{
+            color:slategrey;
+        }
+
+        .screen {
+            width: 300px;
+            height: 50px;
+            background-color: #ccc;
+            margin: 20px;
+            text-align: center;
+            line-height: 50px;
+        }
+        .pri_classs {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            
+            gap: 10px;
+            padding: 20px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .pri_class {
+            width: 50px;
+            height: 50px;
+            background-color: #f6e7f3;
+            border: 2px solid #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .occupied {
+            background-color: #0066cc;
+            color: white;
+            cursor: not-allowed;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #333;
+        }
+        #clearDataButton {
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #clearDataButton:hover {
+            background-color: #d32f2f;
+        }
+        .buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px;
+            display: none; /* 初始隱藏 */
+        }
+        
+        #adminModeButton {
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        #adminModeButton.active {
+            background-color: #1976D2;
+        }
+        
+        #adminModeButton:hover {
+            background-color: #1976D2;
+        }
+        /* 添加彈窗樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .modal button {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .close-btn {
+            background-color: #808080;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .modal button:hover {
+            opacity: 0.8;
+        }
+
+        /* 添加管理模式相關樣式 */
+        .pri_class.occupied.admin-mode {
+            cursor: pointer !important;
+            opacity: 0.8; /* 可選：添加視覺提示 */
+        }
+
+        /* 修改管理模式按鈕樣式 */
+        #adminModeButton.active {
+            background-color: #ff4444;
+        }
+
+        /* 新增有缺席學生的樣式 */
+        .has-absent {
+            background-color: red;  /* 紫色 */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+		<!--班級簽到-->
+		<!--<p class="ht">1235</p> -->
+        <div>
+            <center>
+                <table>
+                    <tr>
+                        <td class="headtable"><a href="index.html">簽到主頁</a></td>
+                        <td class="headtable"><a href="pri_class.html">小學班級簽到</a></td>
+                        <td class="headtable"><a href="sec_class.html">中學班級簽到</a></td>
+
+                        <!--
+                        <td class="headtable"><a href="sec_teachers.html">中學教師簽到</a></td>
+                        <td class="headtable"><a href="pri_teachers.html">小學教師簽到</a></td>
+                        -->
+                        
+                    </tr>
+            </table>
+            </center>
+        </div>   
+
+	</header>
+	
+	
+	<section>
+		
+	<aside><p></p></aside>
+    <center>
+        <h3>小學班級簽到系統</h3>
+    </center>
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: #f6e7f3;"></div>
+            <span>未簽到</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: #4CAF50;"></div>
+            <span>您的簽到</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: #0066cc;"></div>
+            <span>已簽到</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: red;"></div>
+            <span>有缺席學生</span>
+        </div>
+    </div>
+    <div class="pri_classs" id="pri_classsContainer"></div>
+    <div class="buttons">
+        <button id="clearDataButton">清除資料</button>
+        <button id="adminModeButton">管理模式</button>
+    </div>
+    </section>
+    <!-- 在 body 標籤內添加彈窗 HTML -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal" id="attendanceModal">
+        <h4>是否到齊? 若是, 請直接按<span style="background-color: #4CAF50; color: white; font-weight: bold;"> 確認 </span>按鈕</h4>
+        <p>若否，請輸入缺席學生學號（多個學生請用逗號分隔）：</p>
+        <input type="text" id="absentStudents" placeholder="例如:01_Ann, 02_bobo">
+        <br><br>
+        <div class="modal-buttons">
+            <button onclick="cancelAttendance()" class="cancel-btn">取消簽到</button>
+            <button onclick="closeModal()" class="close-btn">取消</button>
+            <button onclick="submitAttendance()" class="submit-btn">確認</button>
+        </div>
+    </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+        apiKey: "AIzaSyA1-CSdfKy0rXLc70MYx9NiMuFMxUAiK7I",
+        authDomain: "pri-class.firebaseapp.com",
+        databaseURL: "https://pri-class-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "pri-class",
+        storageBucket: "pri-class.firebasestorage.app",
+        messagingSenderId: "323333372314",
+        appId: "1:323333372314:web:1dfc3fae12b3df8eab6223",
+        measurementId: "G-MBSDKCBBSF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+        const pri_classsContainer = document.getElementById('pri_classsContainer');
+        const rows = 6;
+        const pri_classsPerRow = 4;
+        const pri_classLetters = ['A', 'B', 'C', 'D'];
+
+        let isAdminMode = false;
+        let currentPriClassId = null;
+
+        for (let i = 0; i < rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            
+            for (let j = 0; j < pri_classsPerRow; j++) {
+                const pri_class = document.createElement('div');
+                pri_class.className = 'pri_class';
+                const pri_classId = `P${i + 1}${pri_classLetters[j]}`;
+                pri_class.id = pri_classId;
+                pri_class.textContent = pri_classId;
+
+                pri_class.addEventListener('click', function() {
+                    currentPriClassId = pri_classId;
+                    
+                    // 檢查是否可以操作座位
+                    if (isAdminMode || !this.classList.contains('occupied') || this.classList.contains('selected')) {
+                        document.getElementById('modalBackdrop').style.display = 'block';
+                        document.getElementById('attendanceModal').style.display = 'block';
+                        
+                        // 如果是已選擇的座位，顯示當前的缺席資訊
+                        if (this.classList.contains('selected')) {
+                            const currentAbsentInfo = this.dataset.absentStudents || '';
+                            document.getElementById('absentStudents').value = currentAbsentInfo;
+                        } else {
+                            document.getElementById('absentStudents').value = '';
+                        }
+                    }
+                });
+
+                row.appendChild(pri_class);
+            }
+            pri_classsContainer.appendChild(row);
+        }
+
+        // 將這些函數設置為全局函數
+        window.submitAttendance = function() {
+            const absentStudents = document.getElementById('absentStudents').value;
+            const pri_classRef = ref(database, `classes/${currentPriClassId}`);
+            
+            set(pri_classRef, {
+                occupied: userId,
+                absentStudents: absentStudents || '到齊',
+                timestamp: new Date().toISOString()
+            }).then(() => {
+                const element = document.getElementById(currentPriClassId);
+                if (element) {
+                    element.dataset.absentStudents = absentStudents || '到齊';
+                }
+                closeModal();
+            }).catch((error) => {
+                console.error("提交簽到時發生錯誤:", error);
+                alert("提交失敗，請稍後再試");
+            });
+        };
+
+        window.closeModal = function() {
+            document.getElementById('modalBackdrop').style.display = 'none';
+            document.getElementById('attendanceModal').style.display = 'none';
+            document.getElementById('absentStudents').value = '';
+            currentPriClassId = null;
+        };
+
+        // 添加取消簽到功能
+        window.cancelAttendance = function() {
+            if (currentPriClassId) {
+                const pri_classRef = ref(database, `classes/${currentPriClassId}`);
+                remove(pri_classRef).then(() => {
+                    const element = document.getElementById(currentPriClassId);
+                    if (element) {
+                        element.classList.remove('selected', 'occupied');
+                        element.dataset.absentStudents = '';
+                    }
+                    closeModal();
+                }).catch((error) => {
+                    console.error("取消簽到時發生錯誤:", error);
+                    alert("取消簽到失敗，請稍後再試");
+                });
+            }
+        };
+
+        // 修改監聽函數
+        onValue(ref(database, 'classes'), (snapshot) => {
+            document.querySelectorAll('.pri_class').forEach(pri_class => {
+                pri_class.classList.remove('occupied', 'selected', 'has-absent');
+                pri_class.dataset.absentStudents = '';
+            });
+
+            const pri_classs = snapshot.val();
+            if (pri_classs) {
+                Object.entries(pri_classs).forEach(([pri_classId, pri_classData]) => {
+                    const pri_class = document.getElementById(pri_classId);
+                    if (pri_class) {
+                        if (pri_classData.occupied === userId) {
+                            pri_class.classList.add('selected');
+                            pri_class.dataset.absentStudents = pri_classData.absentStudents || '到齊';
+                            // 如果有缺席學生，添加紫色樣式
+                            if (pri_classData.absentStudents && pri_classData.absentStudents !== '到齊') {
+                                pri_class.classList.add('has-absent');
+                            }
+                        } else {
+                            pri_class.classList.add('occupied');
+                            // 如果有缺席學生，添加紫色樣式
+                            if (pri_classData.absentStudents && pri_classData.absentStudents !== '到齊') {
+                                pri_class.classList.add('has-absent');
+                            }
+                            // 根據管理模式設置游標樣式
+                            pri_class.style.cursor = isAdminMode ? 'pointer' : 'not-allowed';
+                        }
+                    }
+                });
+            }
+            // 更新所有座位狀態
+            updateSeatsState();
+        });
+
+        // 清除所有班級數據
+        document.getElementById('clearDataButton').addEventListener('click', () => {
+            remove(ref(database, 'classes'))
+                .then(() => {
+                    console.log('所有班級資料已清除');
+                })
+                .catch((error) => {
+                    console.error('清除資料時出錯:', error);
+                });
+        });
+
+        // 修改管理模式按鈕事件處理
+        const adminModeButton = document.getElementById('adminModeButton');
+        adminModeButton.addEventListener('click', function() {
+            isAdminMode = !isAdminMode;
+            this.classList.toggle('active');
+            this.textContent = isAdminMode ? '退出管理' : '管理模式';
+
+            // 更新所有座位的狀態
+            updateSeatsState();
+        });
+
+        // 添加更新座位狀態的函數
+        function updateSeatsState() {
+            const allSeats = document.querySelectorAll('.pri_class');
+            allSeats.forEach(seat => {
+                if (isAdminMode) {
+                    // 管理模式下所有座位都可點擊
+                    seat.style.cursor = 'pointer';
+                    if (seat.classList.contains('occupied')) {
+                        seat.classList.add('admin-mode');
+                    }
+                } else {
+                    // 非管理模式下恢復原始狀態
+                    if (seat.classList.contains('occupied') && !seat.classList.contains('selected')) {
+                        seat.style.cursor = 'not-allowed';
+                    }
+                    seat.classList.remove('admin-mode');
+                }
+            });
+        }
+    </script>
+</body>
+<footer> 
+    <center>
+    <table>
+        <tr>
+            <td><a id="secretTrigger">| Created by Shcces ICT Team |</a></td>
+        </tr>
+    </table>
+    </center>
+    
+</footer>
+
+<script>
+    // 添加點擊計數器功能
+    const secretTrigger = document.getElementById('secretTrigger');
+    const buttonsDiv = document.querySelector('.buttons');
+    let clickCount = 0;
+    let clickTimer;
+
+    secretTrigger.addEventListener('click', function() {
+        clickCount++;
+        
+        // 重置計時器
+        clearTimeout(clickTimer);
+        
+        // 設置新的計時器（1秒後重置點擊次數）
+        clickTimer = setTimeout(() => {
+            clickCount = 0;
+        }, 1000);
+
+        // 檢查點擊次數
+        if (clickCount === 5) {
+            buttonsDiv.style.display = buttonsDiv.style.display === 'none' ? 'flex' : 'none';
+            clickCount = 0;
+        }
+    });
+</script>
+
+</html>
